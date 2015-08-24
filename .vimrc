@@ -146,7 +146,7 @@ au FocusLost * silent! :wa " save when we lose focus
 if has('win32') || has('win64')
     set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
 endif
-" We want persistent undo (undo between file closes
+" We want persistent undo (undo between file closes)
 if has('persistent_undo')
     "This is a test
     ""Writing somethung elswe`
@@ -190,8 +190,8 @@ if has("autocmd")
     augroup vimrcEx
         au!
 
-        " For all text files set 'textwidth' to 78 characters.
-        autocmd FileType text setlocal textwidth=78
+        " For all text files set 'textwidth' to 80 characters.
+        autocmd FileType text setlocal textwidth=80
 
         " When editing a file, always jump to the last known cursor position.
         " Don't do it when the position is invalid or when inside an event handler
@@ -303,18 +303,20 @@ endfunction
 set ffs=dos,unix
 setglobal ff=dos
 
-" We have too many diff programs, force Vim to use its own.
-set diffexpr=MyDiff()
-	function MyDiff()
-	   let opt = ""
-	   if &diffopt =~ "icase"
-	     let opt = opt . "-i "
-	   endif
-	   if &diffopt =~ "iwhite"
-	     let opt = opt . "-b "
-	   endif
-	   silent execute '!"C:/Program Files (x86)/vim/vim74/diff.exe" -a --binary ' . opt . v:fname_in . " " . v:fname_new .
-		\  " > " . v:fname_out
-	endfunction
-
+" Some Windows environments force their own (incompatible) diff earlier in the
+" path. Hardcode the path to the diff we want to use.
+if has('win32') || has('win64')
+    set diffexpr=MyDiff()
+        function MyDiff()
+           let opt = ""
+           if &diffopt =~ "icase"
+             let opt = opt . "-i "
+           endif
+           if &diffopt =~ "iwhite"
+             let opt = opt . "-b "
+           endif
+           silent execute '!"C:/Program Files (x86)/vim/vim74/diff.exe" -a --binary ' . opt . v:fname_in . " " . v:fname_new .
+            \  " > " . v:fname_out
+        endfunction
+endif
 
