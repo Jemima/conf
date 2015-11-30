@@ -1,5 +1,6 @@
 " David Munro's <david.munro@gmail.com> vimrc file shamelessly incorporating
 " useful things from everywhere and everyone.
+" I try to 
 
 
 " Use Vim settings, rather then Vi settings (much better!).
@@ -49,11 +50,6 @@ set laststatus=2 " Always show the status line
 set ve=onemore
 set autoread
 let mapleader=","
-if has('cmdline_info')
-    set ruler                   " show the ruler
-    set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " a ruler on steroids
-    set showcmd                 " show partial commands in status line and selected characters/lines in visual mode
-endif
 " Shortcuts
 nnoremap ; :
 map <C-h> <C-w>h
@@ -78,27 +74,20 @@ vnoremap > >gv
 vnoremap p "_dp
 vnoremap P "_dP
 
-" Use the regular windows keyboard by default.
-set clipboard=unnamed
+" Use the system clipboard by default.
+set clipboard=unnamedplus
 
-
-cmap w!! w !sudo tee % >/dev/null
-
-" Switch to previous/next buffer in MiniBuffExpl
-" nnoremap th :MBEbp<CR>
-" nnoremap tl :MBEbn<CR>
-"
-" cnoremap  :bd :MBEbd<CR>
-" noremap   <C-F4> :MBEbd<CR>
+" I really want to write the file.
+if has('win32') || has('win64')
+    " attrib +w % then try writing again I guess?
+else
+    cmap w!! w !sudo tee % >/dev/null
+endif
 
 " Make j/k move by screen lines, not 'real' lines (i.e. on a wrapped line
 " don't skip the entire thing).
 nnoremap j gj
 nnoremap k gk
-
-" Easier to hit than escape
-inoremap  <leader><TAB> <ESC>
-vnoremap  <leader><TAB> <ESC>
 
 " Let us delete/change/yank/etc within spaces and underscores, not just
 " brackets, etc.
@@ -189,7 +178,6 @@ if has("autocmd")
     " Put these in an autocmd group, so that we can delete them easily.
     augroup vimrcEx
         au!
-
         " For all text files set 'textwidth' to 80 characters.
         autocmd FileType text setlocal textwidth=80
 
@@ -200,13 +188,9 @@ if has("autocmd")
                     \ if line("'\"") > 0 && line("'\"") <= line("$") |
                     \   exe "normal! g`\"" |
                     \ endif
-
     augroup END
-
 else
-
     set autoindent		" always set autoindenting on
-
 endif " has("autocmd")
 
 " Convenient command to see the difference between the current buffer and the
@@ -214,7 +198,7 @@ endif " has("autocmd")
 command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
             \ | wincmd p | diffthis
 
-" Look for tag files in the file's directory, then in the directory we ran from
+" Look for tag files in the file's directory, then look in parent directories.
 set tags=./tags;
 set tags+=tags;
 
@@ -247,28 +231,92 @@ endfunction
 call InitializeDirectories()
 
 " Setup Vim Addon manager, and init with the plugins we like.
-fun! SetupVAM()
-    let c = get(g:, 'vim_addon_manager', {})
-    let g:vim_addon_manager = c
-    let c.plugin_root_dir = expand('$HOME', 1) . '/.vim/vim-addons'
-    " most used options you may want to use:
-    " let c.log_to_buf = 1
-    " let c.auto_install = 0
-    let &rtp.=(empty(&rtp)?'':',').c.plugin_root_dir.'/vim-addon-manager'
-    if !isdirectory(c.plugin_root_dir.'/vim-addon-manager/autoload')
-        execute '!git clone --depth=1 git://github.com/MarcWeber/vim-addon-manager '
-                    \       c.plugin_root_dir.'/vim-addon-manager'
-    endif
-    call vam#ActivateAddons([], {'auto_install' : 0})
-endfun
+"fun! SetupVAM()
+    "let c = get(g:, 'vim_addon_manager', {})
+    "let g:vim_addon_manager = c
+    "let c.plugin_root_dir = expand('$HOME', 1) . '/.vim/vim-addons'
+    "" most used options you may want to use:
+    "" let c.log_to_buf = 1
+    "" let c.auto_install = 0
+    "let &rtp.=(empty(&rtp)?'':',').c.plugin_root_dir.'/vim-addon-manager'
+    "if !isdirectory(c.plugin_root_dir.'/vim-addon-manager/autoload')
+        "execute '!git clone --depth=1 git://github.com/MarcWeber/vim-addon-manager '
+                    "\       c.plugin_root_dir.'/vim-addon-manager'
+    "endif
+    "call vam#ActivateAddons([], {'auto_install' : 0})
+"endfun
 
-call SetupVAM()
-let vam_always = {
-            \ 'never': [ 'github:fholgado/minibufexpl.vim.git' ],
-            \ 'always': [ 'github:scrooloose/nerdtree.git', 'github:scrooloose/nerdcommenter.git', 'SearchComplete', 'Tagbar', 'github:tpope/vim-surround.git', 'github:tpope/vim-fugitive', 'github:vim-perl/vim-perl.git', 'github:goatslacker/mango.vim.git', 'github:ervandew/supertab', 'ScrollColors', 'Colour_Sampler_Pack', 'vim-airline', 'csv', 'github:BenBergman/TagHighlight', 'github:tpope/vim-surround', 'OmniCppComplete', 'delimitMate', 'github:mbbill/undotree', 'vim-snippets', 'github:wesgibbs/vim-irblack.git', 'github:AndrewRadev/linediff.vim', 'github:PProvost/vim-ps1.git' ]
-            \ }
-call vam#ActivateAddons(vam_always['always'])
+"call SetupVAM()
+"let vam_always = {
+            "\ 'never': [ 'github:fholgado/minibufexpl.vim.git' ],
+            "\ 'always': [ 'github:scrooloose/nerdtree.git', 'github:scrooloose/syntastic.git', 'github:scrooloose/nerdcommenter.git', 'SearchComplete', 'Tagbar', 'github:tpope/vim-surround.git', 'github:tpope/vim-fugitive', 'github:vim-perl/vim-perl.git', 'github:goatslacker/mango.vim.git', 'github:ervandew/supertab', 'ScrollColors', 'Colour_Sampler_Pack', 'vim-airline', 'csv', 'github:BenBergman/TagHighlight', 'github:tpope/vim-surround', 'OmniCppComplete', 'delimitMate', 'github:mbbill/undotree', 'vim-snippets', 'github:wesgibbs/vim-irblack.git', 'github:AndrewRadev/linediff.vim', 'github:PProvost/vim-ps1.git', 'github:fatih/vim-go' ]
+            "\ }
+"call vam#ActivateAddons(vam_always['always'])
 
+" If we don't have vim-plug install it now.
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall | source $MYVIMRC
+endif
+
+" Setup our plugins.
+call plug#begin('~/.vim/plugged')
+" Simple file explorer/
+Plug 'scrooloose/nerdtree'
+" Automatic syntax checking/
+Plug 'scrooloose/syntastic'
+" Shortcuts for comments e.g. comment out a block of text.
+Plug 'scrooloose/nerdcommenter'
+" Uses CTags to display a list of tags (functions, etc) in a sidebar.
+Plug 'majutsushi/Tagbar'
+" Manipulate surrounding text.
+Plug 'tpope/vim-surround'
+" Useful functionality for Perl
+Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
+" Browse colour themes.
+Plug 'vim-scripts/ScrollColors'
+" A whole bunch of themes.
+" Plug 'vim-scripts/Colour_Sampler_Pack'
+" Improved status bar
+Plug 'bling/vim-airline'
+" Useful commands for csv files.
+" Plug 'chrisbra/csv'
+" Improved code completion. Needs to be manually installed, because it's
+" picky and fragile.
+Plug 'Valloric/YouCompleteMe'
+" Required for vim-shell.
+Plug 'xolox/vim-misc'
+" Allows command to run async without opening a command prompt on Windows.
+" Required for vim-easytags to run async on Windows
+Plug 'xolox/vim-shell'
+"Automatically generate a tags file and use it for smarter syntax highlighting.
+Plug 'xolox/vim-easytags'
+" Automatically insert closing characters.
+Plug 'Raimondi/delimitMate'
+" GUI for vim's undo branches
+Plug 'mbbill/undotree'
+" Library of snippets
+Plug 'honza/vim-snippets'
+" A snippet manager
+Plug 'SirVer/ultisnips'
+"Allows diffing blocks within a file, instead of just an entire file.
+Plug 'AndrewRadev/linediff.vim'
+"Powershell support
+Plug 'PProvost/vim-ps1'
+"Go support
+Plug 'fatih/vim-go'
+call plug#end()
+
+" Syntastic settings.
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 " Setup our syntax highlighting.
 set autochdir
@@ -285,23 +333,41 @@ autocmd InsertEnter * match ExtraWhitespace /\s\+$%#\@<!$\| \+\ze\t/
 autocmd InsertLeave * match ExtraWhitespace /\s\+$\| \+\ze\t/
 autocmd BufWinLeave * call clearmatches()
 
-
 " Setup Airline for our status bar.
 let g:airline#extensions#whitespace#checks = [ 'indent' ]
 let g:airline#extensions#whitespace#mixed_indent_format = 'mi[%s]'
-" Alas, we seem only able to change the statusbar in our vimrc, rather than at
-" runtime
-function! MyPlugin(...)
-    call airline#extensions#append_to_section('c', g:extra_name)
-endfunction
-function! AddName(name)
-    let g:extra_name=a:name
-    call airline#add_statusline_func('MyPlugin')
-endfunction
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
 
-" We're on Windows, so prefer windows line endings.
-set ffs=dos,unix
-setglobal ff=dos
+if has('cmdline_info')
+    set ruler                   " show the ruler
+    set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " a ruler on steroids
+    set showcmd                 " show partial commands in status line and selected characters/lines in visual mode
+endif
+
+" Copied from kbenzie's example at https://github.com/Valloric/YouCompleteMe/issues/420.
+" UltiSnips and YouCompleteMe really don't play nicely together.
+let g:ulti_expand_or_jump_res = 0
+function ExpandSnippetOrCarriageReturn()
+    let snippet = UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res > 0
+        return snippet
+    else
+        return "\<CR>"
+    endif
+endfunction
+inoremap <expr> <CR> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
+inoremap <expr> <C-> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
+" Use a fallback default config file.
+let g:ycm_global_ycm_extra_conf = '~/conf/.ycm_extra_conf.py'
+" Load the above without warning.
+let g:ycm_extra_conf_globallist = ['~/conf/.ycm_extra_conf.py']
+" Easytags setup
+" Run easytags in the background
+let g:easytags_async = 1
+" Speed up syntax highlighting by sacrificing accuracy
+" let g:easytags_syntax_keyword = 'always'
 
 " Some Windows environments force their own (incompatible) diff earlier in the
 " path. Hardcode the path to the diff we want to use.
