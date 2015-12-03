@@ -8,7 +8,10 @@ set nocompatible
 "
 " Set up some language-specific shortcuts, this must be early because it only
 " runs when the filetype is actually set.
-map <C-R>
+" Free C-R so we don't keep redoing if we're too slow to build. We map redo to
+" something else later.
+nmap <C-R> <nop>
+map <F1> <nop>
 " Go
 autocmd FileType go map <buffer> <C-B>  :GoBuild<CR>
 autocmd FileType go map <buffer> <C-R><C-R> :GoRun<CR>
@@ -63,7 +66,7 @@ set autoread
 let mapleader=","
 " Shortcuts
 " Windows-style redo shortcut, frees C-R for e.g. Run.
-noremap <C-Y> <C-R>
+nnoremap <C-Y> <C-R>
 nnoremap ; :
 map <C-h> <C-w>h
 map <C-j> <C-w>j
@@ -85,7 +88,11 @@ vnoremap p "_dp
 vnoremap P "_dP
 
 " Use the system clipboard by default.
-set clipboard=unnamedplus
+if has('win32') || has('win64')
+    set clipboard=unnamed
+else
+    set clipboard=unnamedplus
+endif
 
 " I really want to write the file.
 if has('win32') || has('win64')
@@ -147,8 +154,6 @@ if has('win32') || has('win64')
 endif
 " We want persistent undo (undo between file closes)
 if has('persistent_undo')
-    "This is a test
-    ""Writing somethung elswe`
     let myUndoDir = expand($HOME.'/.vim/undodir')
     " No console pops up
     " call system('mkdir ' . myUndoDir)
@@ -208,10 +213,6 @@ endif " has("autocmd")
 command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
             \ | wincmd p | diffthis
 
-" Look for tag files in the file's directory, then look in parent directories.
-set tags=./tags;
-set tags+=tags;
-
 "Keep swap, backup, etc files in ~/.vimswap, etc instead of current folder
 function! InitializeDirectories()
     let separator = "."
@@ -264,9 +265,10 @@ call InitializeDirectories()
 "call vam#ActivateAddons(vam_always['always'])
 
 " If we don't have vim-plug install it now.
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+" Will probably break if $HOME has spaces.
+let PlugPath=expand($HOME).'/.vim/autoload/plug.vim'
+if empty(glob(PlugPath))
+    exe 'silent !curl -fLo ' . PlugPath . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   autocmd VimEnter * PlugInstall | source $MYVIMRC
 endif
 
@@ -274,8 +276,6 @@ endif
 call plug#begin('~/.vim/plugged')
 " Simple file explorer/
 Plug 'scrooloose/nerdtree'
-" Automatic syntax checking/
-Plug 'scrooloose/syntastic'
 " Shortcuts for comments e.g. comment out a block of text.
 Plug 'scrooloose/nerdcommenter'
 " Uses CTags to display a list of tags (functions, etc) in a sidebar.
@@ -283,7 +283,7 @@ Plug 'majutsushi/Tagbar'
 " Manipulate surrounding text.
 Plug 'tpope/vim-surround'
 " Useful functionality for Perl
-Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
+Plug 'vim-perl/vim-perl'
 " Browse colour themes.
 Plug 'vim-scripts/ScrollColors'
 " A whole bunch of themes.
@@ -292,41 +292,42 @@ Plug 'vim-scripts/ScrollColors'
 Plug 'bling/vim-airline'
 " Useful commands for csv files.
 " Plug 'chrisbra/csv'
-" Improved code completion. Needs to be manually installed, because it's
-" picky and fragile.
-Plug 'Valloric/YouCompleteMe'
-" Required for vim-shell.
-Plug 'xolox/vim-misc'
-" Allows command to run async without opening a command prompt on Windows.
-" Required for vim-easytags to run async on Windows
-Plug 'xolox/vim-shell'
 "Automatically generate a tags file and use it for smarter syntax highlighting.
-Plug 'xolox/vim-easytags'
-" Automatically insert closing characters.
 Plug 'Raimondi/delimitMate'
 " GUI for vim's undo branches
 Plug 'mbbill/undotree'
 " Library of snippets
 Plug 'honza/vim-snippets'
-" A snippet manager
-Plug 'SirVer/ultisnips'
 "Allows diffing blocks within a file, instead of just an entire file.
 Plug 'AndrewRadev/linediff.vim'
 "Powershell support
 Plug 'PProvost/vim-ps1'
 "Go support
 Plug 'fatih/vim-go'
+" Only load these next plugins if we're operating normally. Sometimes (e.g.
+" invoked to edit a form, running via a plugin like vsvim) we won't have everything set up correctly to keep
+" these plugins happy (meaningful tags, python support, munged path so You Complete Me
+" doesn't crash, etc).
+if !exists('g:SimplePlugins') && has('python')
+    " Automatic syntax checking
+    Plug 'scrooloose/syntastic'
+    " Improved code completion. Needs to be manually installed, because it's
+    " picky and fragile.
+    Plug 'Valloric/YouCompleteMe'
+    " Required for vim-shell and vim-easytags
+    Plug 'xolox/vim-misc'
+    " Allows command to run async without opening a command prompt on Windows.
+    " Required for vim-easytags to run async on Windows
+    "Plug 'xolox/vim-shell'
+    Plug 'xolox/vim-easytags'
+    " Automatically insert closing characters.
+    " A snippet manager
+    Plug 'SirVer/ultisnips'
+    let g:AdvancedPlugins = 1
+else
+    let g:AdvancedPlugins = 0
+endif
 call plug#end()
-
-" Syntastic settings.
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 " Setup our syntax highlighting.
 set autochdir
@@ -356,42 +357,51 @@ if has('cmdline_info')
     set showcmd                 " show partial commands in status line and selected characters/lines in visual mode
 endif
 
-" Copied from kbenzie's example at https://github.com/Valloric/YouCompleteMe/issues/420.
-" UltiSnips and YouCompleteMe really don't play nicely together.
-let g:ulti_expand_or_jump_res = 0
-function ExpandSnippetOrCarriageReturn()
-    let snippet = UltiSnips#ExpandSnippetOrJump()
-    if g:ulti_expand_or_jump_res > 0
-        return snippet
-    else
-        return "\<C-y>"
-    endif
-endfunction
-inoremap <expr> <CR> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
-" Use a fallback default config file.
-let g:ycm_global_ycm_extra_conf = '~/conf/.ycm_extra_conf.py'
-" Load the above without warning.
-let g:ycm_extra_conf_globallist = ['~/conf/.ycm_extra_conf.py']
-" Easytags setup
-" Run easytags in the background
-let g:easytags_async = 1
-" Speed up syntax highlighting by sacrificing accuracy
-" let g:easytags_syntax_keyword = 'always'
+if g:AdvancedPlugins == 1
+    " Syntastic settings.
+    set statusline+=%#warningmsg#
+    set statusline+=%{SyntasticStatuslineFlag()}
+    set statusline+=%*
 
-" Some Windows environments force their own (incompatible) diff earlier in the
-" path. Hardcode the path to the diff we want to use.
-if has('win32') || has('win64')
-    set diffexpr=MyDiff()
-        function MyDiff()
-           let opt = ""
-           if &diffopt =~ "icase"
-             let opt = opt . "-i "
-           endif
-           if &diffopt =~ "iwhite"
-             let opt = opt . "-b "
-           endif
-           silent execute '!"C:/Program Files (x86)/vim/vim74/diff.exe" -a --binary ' . opt . v:fname_in . " " . v:fname_new .
-            \  " > " . v:fname_out
-        endfunction
-endif
+    let g:syntastic_always_populate_loc_list = 1
+    let g:syntastic_auto_loc_list = 1
+    let g:syntastic_check_on_open = 1
+    let g:syntastic_check_on_wq = 0
+
+    " YouCompleteMe settings
+    " Copied (and then modified) based on examples at https://github.com/Valloric/YouCompleteMe/issues/420.
+    " UltiSnips and YouCompleteMe really don't play nicely together.
+    let g:ulti_expand_or_jump_res = 0
+    function ExpandSnippetOrCarriageReturn()
+        let snippet = UltiSnips#ExpandSnippetOrJump()
+        if g:ulti_expand_or_jump_res > 0
+            return snippet
+        else
+            return "\<C-y>"
+        endif
+    endfunction
+    inoremap <expr> <CR> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
+    " Use a fallback default config file.
+    let g:ycm_global_ycm_extra_conf = '~/conf/.ycm_extra_conf.py'
+    " Load the above without warning.
+    let g:ycm_extra_conf_globallist = ['~/conf/.ycm_extra_conf.py']
+    " Easytags setup
+    " Run easytags in the background
+    " Doesn't actually work, never returns (on Windows at least).
+    " let g:easytags_async = 1
+    " Use project-specific files if it finds them.
+    let g:easytags_dynamic_files = 1
+    " Use .tags on windows as well for consistency.
+    let g:easytags_file = '~/.vim/tags'
+    " UpdateTags only seems to run when the file has been edited and saved. Run it
+    " once when we first load the file.
+    "autocmd BufReadPost * UpdateTags
+    " Speed up syntax highlighting by sacrificing accuracy
+    " let g:easytags_syntax_keyword = 'always'
+ endif
+" Look for tag files in the file's directory, then look in parent directories,
+" then the global tags file.
+set tags=./tags;
+set tags+=tags;
+set tags+='~/.vim/tags'
 
