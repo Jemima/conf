@@ -121,8 +121,8 @@ nnoremap va_ F_v,
 " Stuff for working with tabs/buffers
 nmap tl :tabPrevious<CR>
 nmap th :tabNext<CR>
-nmap bh :bn<CR>
-nmap bl :bp<CR>
+nmap bl :bn<CR>
+nmap bh :bp<CR>
 
 "Stuff for diffs
 nmap dp :diffput
