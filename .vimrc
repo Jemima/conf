@@ -48,6 +48,8 @@ set wildmenu
 set wrapscan
 set ch=2
 set timeoutlen=200
+set foldlevel=99
+set foldmethod=indent
 set foldopen=block,insert,jump,mark,percent,quickfix,search,tag,undo
 set scrolloff=5
 set showfulltag
@@ -292,7 +294,7 @@ Plug 'vim-scripts/ScrollColors'
 Plug 'bling/vim-airline'
 " Useful commands for csv files.
 " Plug 'chrisbra/csv'
-"Automatically generate a tags file and use it for smarter syntax highlighting.
+" Automatically generate a tags file and use it for smarter syntax highlighting.
 Plug 'Raimondi/delimitMate'
 " GUI for vim's undo branches
 Plug 'mbbill/undotree'
@@ -300,10 +302,12 @@ Plug 'mbbill/undotree'
 Plug 'honza/vim-snippets'
 "Allows diffing blocks within a file, instead of just an entire file.
 Plug 'AndrewRadev/linediff.vim'
-"Powershell support
+" Powershell support
 Plug 'PProvost/vim-ps1'
-"Go support
+" Go support
 Plug 'fatih/vim-go'
+" Shortcuts for text alignment
+ Plug 'junegunn/vim-easy-align'
 " Only load these next plugins if we're operating normally. Sometimes (e.g.
 " invoked to edit a form, running via a plugin like vsvim) we won't have everything set up correctly to keep
 " these plugins happy (meaningful tags, python support, munged path so You Complete Me
@@ -350,6 +354,12 @@ let g:airline#extensions#whitespace#mixed_indent_format = 'mi[%s]'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
+
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 if has('cmdline_info')
     set ruler                   " show the ruler
