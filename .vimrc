@@ -1,11 +1,22 @@
 " David Munro's <david.munro@gmail.com> vimrc file shamelessly incorporating
 " useful things from everywhere and everyone.
-" I try to 
 
 
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
+"
+" Set up some language-specific shortcuts, this must be early because it only
+" runs when the filetype is actually set.
+map <C-R>
+" Go
+autocmd FileType go map <buffer> <C-B>  :GoBuild<CR>
+autocmd FileType go map <buffer> <C-R><C-R> :GoRun<CR>
+autocmd FileType go map <buffer> <C-R><C-T> :GoTest<CR>
+" General shortcuts for plugins
+noremap <F3> :NERDTree<CR>
+noremap <F4> :TagbarToggle<CR>
+noremap <F5> :UndotreeToggle<CR>
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
@@ -51,6 +62,8 @@ set ve=onemore
 set autoread
 let mapleader=","
 " Shortcuts
+" Windows-style redo shortcut, frees C-R for e.g. Run.
+noremap <C-Y> <C-R>
 nnoremap ; :
 map <C-h> <C-w>h
 map <C-j> <C-w>j
@@ -58,9 +71,6 @@ map <C-k> <C-w>k
 map <C-l> <C-w>l
 nmap <silent> <leader>/ :nohlsearch<CR> " remove the search result highlights
 nmap <silent> \, :nohlsearch<CR> " remove the search result highlights
-noremap <F3> :NERDTree<CR>
-noremap <F4> :TagbarToggle<CR>
-noremap <F5> :UndotreeToggle<CR>
 
 nnoremap Y y$
 " Change Working Directory to that of the current file
@@ -354,11 +364,10 @@ function ExpandSnippetOrCarriageReturn()
     if g:ulti_expand_or_jump_res > 0
         return snippet
     else
-        return "\<CR>"
+        return "\<C-y>"
     endif
 endfunction
 inoremap <expr> <CR> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
-inoremap <expr> <C-> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
 " Use a fallback default config file.
 let g:ycm_global_ycm_extra_conf = '~/conf/.ycm_extra_conf.py'
 " Load the above without warning.
