@@ -300,7 +300,7 @@ Plug 'Raimondi/delimitMate'
 Plug 'mbbill/undotree'
 " Library of snippets
 Plug 'honza/vim-snippets'
-"Allows diffing blocks within a file, instead of just an entire file.
+" Allows diffing blocks within a file, instead of just an entire file.
 Plug 'AndrewRadev/linediff.vim'
 " Powershell support
 Plug 'PProvost/vim-ps1'
@@ -355,9 +355,9 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 
+" EasyAlign settings
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
-
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
