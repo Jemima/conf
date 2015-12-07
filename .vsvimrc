@@ -26,4 +26,7 @@ nnoremap mx mx:!start /b VSBookmarkRemap.ahk<CR>
 nnoremap my my:!start /b VSBookmarkRemap.ahk<CR>
 nnoremap mz mz:!start /b VSBookmarkRemap.ahk<CR>
 nnoremap '' :!start /b VSBackRemap.ahk<CR>
+let g:vsvimrc=1
 source ~/.vimrc
+set clipboard=unnamed
+
