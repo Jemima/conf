@@ -294,7 +294,7 @@ Plug 'vim-scripts/ScrollColors'
 Plug 'bling/vim-airline'
 " Useful commands for csv files.
 " Plug 'chrisbra/csv'
-" Automatically generate a tags file and use it for smarter syntax highlighting.
+" Insert closing delimiters automatically.
 Plug 'Raimondi/delimitMate'
 " GUI for vim's undo branches
 Plug 'mbbill/undotree'
@@ -323,8 +323,8 @@ if !exists('g:SimplePlugins') && has('python')
     " Allows command to run async without opening a command prompt on Windows.
     " Required for vim-easytags to run async on Windows
     "Plug 'xolox/vim-shell'
+    " Automatic tag generation.
     Plug 'xolox/vim-easytags'
-    " Automatically insert closing characters.
     " A snippet manager
     Plug 'SirVer/ultisnips'
     let g:AdvancedPlugins = 1
