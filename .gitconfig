@@ -1,24 +1,25 @@
 [alias]
     tree = log --graph --full-history --abbrev-commit --decorate --date=relative --format=format:'%C(bold magenta)%h%C(reset)%C(auto)%d%C(reset) %s%C(reset) %C(dim green)(%ad)%C(reset)'
-	#tree = log --graph --full-history --all --color --pretty=format:\"%x1b[31m%h%x09%x1b[33m%d%x1b[0m%x20%s\"
 [user]
 	name = davidmun
 	email = davidmun@microsoft.com
 [core]
 	filemode = false
 	ignorecase = true
-
-#[diff]
-#	tool = vsdiffmerge
+	editor = C:/Users/davidmun/scripts/gvim.bat
+[diff]
+	tool = sdvdiff
 [difftool]
 	prompt = false
+[difftool "sdvdiff"]
+	cmd = \"C:\\Users\\davidmun\\Programs\\sdpack\\bin\\sdvdiff.exe\" \"$LOCAL\" \"$REMOTE\"
+	keepbackup = false
 [difftool "vsdiffmerge"]
 	cmd = \"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\vsdiffmerge.exe\" \"$LOCAL\" \"$REMOTE\" //t
 	keepbackup = false
 
 [merge]
 	tool = vsdiffmerge
-
 [mergetool]
 	prompt = false
 [mergetool "vsdiffmerge"]
