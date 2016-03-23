@@ -65,6 +65,7 @@ set foldenable
 set laststatus=2 " Always show the status line
 set ve=onemore
 set autoread
+set conceallevel=0
 let mapleader=","
 " Shortcuts
 " Windows-style redo shortcut, frees C-R for e.g. Run.
@@ -128,8 +129,8 @@ nnoremap vi_ T_v,
 nnoremap va_ F_v,
 
 " Stuff for working with tabs/buffers
-nmap tl :tabPrevious<CR>
-nmap th :tabNext<CR>
+nmap tl :tabnext<CR>
+nmap th :tabprevious<CR>
 nmap bl :bn<CR>
 nmap bh :bp<CR>
 
@@ -307,12 +308,15 @@ Plug 'PProvost/vim-ps1'
 " Go support
 Plug 'fatih/vim-go'
 " Shortcuts for text alignment
- Plug 'junegunn/vim-easy-align'
+Plug 'junegunn/vim-easy-align'
+" Pandoc-flavour markwown syntax highlighting
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
 " Only load these next plugins if we're operating normally. Sometimes (e.g.
 " invoked to edit a form, running via a plugin like vsvim) we won't have everything set up correctly to keep
 " these plugins happy (meaningful tags, python support, munged path so You Complete Me
 " doesn't crash, etc).
-if !exists('g:SimplePlugins') && has('python')
+if !exists('g:SimplePlugins') && has('python') && !&diff
     " Automatic syntax checking
     Plug 'scrooloose/syntastic'
     " Improved code completion. Needs to be manually installed, because it's
@@ -347,6 +351,9 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$\| \+\ze\t/
 autocmd InsertEnter * match ExtraWhitespace /\s\+$%#\@<!$\| \+\ze\t/
 autocmd InsertLeave * match ExtraWhitespace /\s\+$\| \+\ze\t/
 autocmd BufWinLeave * call clearmatches()
+
+" Don't use conceal in pandoc.
+let g:pandoc#syntax#conceal#use=0
 
 " Setup Airline for our status bar.
 let g:airline#extensions#whitespace#checks = [ 'indent' ]
@@ -395,6 +402,8 @@ if g:AdvancedPlugins == 1
     let g:ycm_global_ycm_extra_conf = '~/conf/.ycm_extra_conf.py'
     " Load the above without warning.
     let g:ycm_extra_conf_globallist = ['~/conf/.ycm_extra_conf.py']
+    " Keep log files around for debugging.
+    let g:ycm_server_keep_logfiles = 1
     " Easytags setup
     " Run easytags in the background
     " Doesn't actually work, never returns (on Windows at least).
