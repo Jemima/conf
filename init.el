@@ -122,6 +122,9 @@ values."
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
    dotspacemacs-emacs-leader-key "M-m"
+   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
+   ;; (default "SPC")
+   dotspacemacs-emacs-command-key "SPC"
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
@@ -136,11 +139,6 @@ values."
    ;; works in the GUI. (default nil)
    dotspacemacs-distinguish-gui-tab nil
    ;; (Not implemented) dotspacemacs-distinguish-gui-ret nil
-   ;; The command key used for Evil commands (ex-commands) and
-   ;; Emacs commands (M-x).
-   ;; By default the command key is `:' so ex-commands are executed like in Vim
-   ;; with `:' and Emacs commands are executed with `<leader> :'.
-   dotspacemacs-command-key ";"
    ;; If non nil `Y' is remapped to `y$'. (default t)
    dotspacemacs-remap-Y-to-y$ t
    ;; Name of the default layout (default "Default")
@@ -263,6 +261,7 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ad" 'anaconda-mode-find-definitions)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ar" 'anaconda-mode-find-references)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "aa" 'anaconda-mode-find-assignments)
+  (define-key evil-motion-state-map ";" 'evil-ex)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
