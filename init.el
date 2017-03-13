@@ -25,7 +25,8 @@ values."
      ;; ----------------------------------------------------------------
      (auto-completion :variables
                       auto-completion-enable-help-tooltip t
-                      auto-completion-enable-snippets-in-popup t)
+                      auto-completion-enable-snippets-in-popup t
+                      haskell-completion-backend 'intero)
      ;; better-defaults
      emacs-lisp
      git
@@ -45,6 +46,7 @@ values."
      syntax-checking
      themes-megapack
      gtags
+     haskell
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
@@ -107,10 +109,9 @@ values."
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(alect-black
-                         ample-zen
                          lush
-                         sanityinc-tomorrow-bright
-                         monokai)
+                         moe-dark
+                         moe-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
@@ -134,6 +135,8 @@ values."
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
    ;; (default "C-M-m)
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
+   ;; semi-colon for ex-mode
+   dotspacemacs-ex-command-key ";"
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs C-i, TAB and C-m, RET.
    ;; Setting it to a non-nil value, allows for separate commands under <C-i>
@@ -263,8 +266,22 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ad" 'anaconda-mode-find-definitions)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ar" 'anaconda-mode-find-references)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "aa" 'anaconda-mode-find-assignments)
-  (define-key evil-motion-state-map ";" 'evil-ex)
+  ;; Don't know a nice (and easy) way to dynamically add a project root to
+  ;; the anaconda search path, since most of our work is in this project
+  ;; just hardcode its addition to the python path
+  (add-to-list 'python-shell-extra-pythonpaths "~/proj/remote/main")
+
   )
+
+;; increment and decrement options from vim, but bound to different
+;; keys to avoid conflict with emacs
+(define-key evil-normal-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
+(define-key evil-visual-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
+(define-key evil-visual-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
+
+;; Enter already selects and closes so map tab to be enter and keep session going
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -324,7 +341,7 @@ static char *gnus-pointer[] = {
    (quote
     (xterm-color shell-pop multi-term fish-mode eshell-z eshell-prompt-extras esh-help company-shell lua-mode yapfify uuidgen toc-org powerline py-isort spinner osx-dictionary org org-plus-contrib org-bullets livid-mode skewer-mode simple-httpd live-py-mode link-hint hydra parent-mode projectile git-link flyspell-correct-helm flyspell-correct pkg-info epl flx eyebrowse evil-visual-mark-mode evil-unimpaired smartparens iedit evil-ediff anzu evil goto-chg undo-tree highlight dumb-jump diminish darkokai-theme column-enforce-mode bind-map bind-key packed dash s helm avy helm-core async popup package-build web-mode web-beautify tagedit slim-mode scss-mode sass-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data company-tern dash-functional tern coffee-mode helm-gtags ggtags helm-company helm-c-yasnippet company-statistics company-quickhelp company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme smeargle reveal-in-osx-finder pyvenv pytest pyenv-mode py-yapf pip-requirements pbcopy osx-trash orgit mmm-mode markdown-toc markdown-mode magit-gitflow launchctl hy-mode helm-pydoc helm-gitignore request helm-flyspell gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor cython-mode auto-dictionary anaconda-mode pythonic f ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe use-package spacemacs-theme spaceline smooth-scrolling restart-emacs rainbow-delimiters quelpa popwin persp-mode pcre2el paradox page-break-lines open-junk-file neotree move-text macrostep lorem-ipsum linum-relative leuven-theme info+ indent-guide ido-vertical-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-args evil-anzu eval-sexp-fu elisp-slime-nav define-word clean-aindent-mode buffer-move bracketed-paste auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line)))
  '(paradox-github-token t)
- '(vc-annotate-background "#3b3b3b")
+ (vc-annotate-background "#3b3b3b")
  '(vc-annotate-color-map
    (quote
     ((20 . "#dd5542")
