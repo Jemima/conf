@@ -18,6 +18,10 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     swift
+     yaml
+     csv
+     vimscript
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -29,6 +33,14 @@ values."
                       haskell-completion-backend 'intero)
      ;; better-defaults
      emacs-lisp
+     java
+     (scala :variables
+            scala-indent:use-javadoc-style t
+            scala-enable-eldoc t
+            scala-auto-insert-asterisk-in-comments t
+            scala-auto-start-ensime t
+            ensime-startup-notification nil
+            ensime-startup-snapshot-notification nil)
      git
      markdown
      lua
@@ -36,24 +48,30 @@ values."
              python-test-runner 'pytest)
      html
      javascript
-     ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     haskell
+     org
+     markdown
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom
+            shell-default-shell 'multi-term
+            shell-default-term-shell "/bin/zsh")
      spell-checking
      shell
      shell-scripts
      syntax-checking
      themes-megapack
      gtags
-     haskell
+     (ruby :variables ruby-enable-enh-ruby-mode t)
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages
+   '(
+     realgud)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -111,7 +129,9 @@ values."
    dotspacemacs-themes '(alect-black
                          lush
                          moe-dark
-                         moe-light)
+                         moe-light
+                         sanityinc-tomorrow-bright
+                         monokai)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
@@ -129,6 +149,8 @@ values."
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
    ;; (default "SPC")
    dotspacemacs-emacs-command-key "SPC"
+   ;; semi-colon for ex-mode
+   dotspacemacs-ex-command-key ";"
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
@@ -252,6 +274,13 @@ before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
   )
 
+(defun prepend-to-pythonpath (s)
+  "Adds s to the start of PYTHONPATH"
+  (setenv "PYTHONPATH"
+          (mapconcat 'identity
+                     (cons s (parse-colon-path (getenv "PYTHONPATH")))
+                     path-separator)))
+
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
@@ -266,22 +295,43 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ad" 'anaconda-mode-find-definitions)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "ar" 'anaconda-mode-find-references)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "aa" 'anaconda-mode-find-assignments)
-  ;; Don't know a nice (and easy) way to dynamically add a project root to
-  ;; the anaconda search path, since most of our work is in this project
-  ;; just hardcode its addition to the python path
-  (add-to-list 'python-shell-extra-pythonpaths "~/proj/remote/main")
 
+  ;; increment and decrement options from vim, but bound to different
+  ;; keys to avoid conflict with emacs
+  (define-key evil-normal-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
+  (define-key evil-visual-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
+  (define-key evil-visual-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
+
+  ;; magit hotkeys
+  (spacemacs/set-leader-keys (kbd "gd") 'magit-diff)
+  (spacemacs/set-leader-keys (kbd "gD") 'magit-diff-popup)
+  (spacemacs/set-leader-keys (kbd "gh") 'magit-log-all)
+
+  ;; org-mode configuration
+  (setq org-agenda-files (list "~/org/notes.org"))
+  (setq org-todo-keywords
+        '((sequence "TODO" "IN-PROGRESS" "BLOCKED" "DONE")))
+
+  ;; Show the clock in the modeline
+  (spacemacs/toggle-mode-line-org-clock)
+
+  ;;(setq flycheck-scalastyle-jar
+  ;;      "/usr/local/Cellar/scalastyle/0.8.0/libexec/scalastyle_2.11-0.8.0-batch.jar")
+  (setq flycheck-scalastylerc
+        "/usr/local/etc/scalastyle_config.xml")
+
+  ;; Realgud
+  (load-library "realgud")
+
+  (add-hook 'realgud-short-key-mode-hook
+            (lambda ()
+              (local-set-key ",d" realgud:shortkey-mode-map)))
+
+
+  ;; Enter already selects and closes so map tab to be enter and keep session going
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
   )
-
-;; increment and decrement options from vim, but bound to different
-;; keys to avoid conflict with emacs
-(define-key evil-normal-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
-(define-key evil-visual-state-map (kbd "C-+") 'evil-numbers/inc-at-pt)
-(define-key evil-normal-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
-(define-key evil-visual-state-map (kbd "C-_") 'evil-numbers/dec-at-pt)
-
-;; Enter already selects and closes so map tab to be enter and keep session going
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -337,11 +387,11 @@ static char *gnus-pointer[] = {
 \"###....####.######\",
 \"###..######.######\",
 \"###########.######\" };")) t)
+ '(org-agenda-files (quote ("~/test.org" "~/org/notes.org")))
  '(package-selected-packages
    (quote
-    (xterm-color shell-pop multi-term fish-mode eshell-z eshell-prompt-extras esh-help company-shell lua-mode yapfify uuidgen toc-org powerline py-isort spinner osx-dictionary org org-plus-contrib org-bullets livid-mode skewer-mode simple-httpd live-py-mode link-hint hydra parent-mode projectile git-link flyspell-correct-helm flyspell-correct pkg-info epl flx eyebrowse evil-visual-mark-mode evil-unimpaired smartparens iedit evil-ediff anzu evil goto-chg undo-tree highlight dumb-jump diminish darkokai-theme column-enforce-mode bind-map bind-key packed dash s helm avy helm-core async popup package-build web-mode web-beautify tagedit slim-mode scss-mode sass-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data company-tern dash-functional tern coffee-mode helm-gtags ggtags helm-company helm-c-yasnippet company-statistics company-quickhelp company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme smeargle reveal-in-osx-finder pyvenv pytest pyenv-mode py-yapf pip-requirements pbcopy osx-trash orgit mmm-mode markdown-toc markdown-mode magit-gitflow launchctl hy-mode helm-pydoc helm-gitignore request helm-flyspell gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor cython-mode auto-dictionary anaconda-mode pythonic f ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe use-package spacemacs-theme spaceline smooth-scrolling restart-emacs rainbow-delimiters quelpa popwin persp-mode pcre2el paradox page-break-lines open-junk-file neotree move-text macrostep lorem-ipsum linum-relative leuven-theme info+ indent-guide ido-vertical-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-args evil-anzu eval-sexp-fu elisp-slime-nav define-word clean-aindent-mode buffer-move bracketed-paste auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line)))
+    (insert-shebang xterm-color shell-pop multi-term fish-mode eshell-z eshell-prompt-extras esh-help company-shell lua-mode yapfify uuidgen toc-org powerline py-isort spinner osx-dictionary org org-plus-contrib org-bullets livid-mode skewer-mode simple-httpd live-py-mode link-hint hydra parent-mode projectile git-link flyspell-correct-helm flyspell-correct pkg-info epl flx eyebrowse evil-visual-mark-mode evil-unimpaired smartparens iedit evil-ediff anzu evil goto-chg undo-tree highlight dumb-jump diminish darkokai-theme column-enforce-mode bind-map bind-key packed dash s helm avy helm-core async popup package-build web-mode web-beautify tagedit slim-mode scss-mode sass-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data company-tern dash-functional tern coffee-mode helm-gtags ggtags helm-company helm-c-yasnippet company-statistics company-quickhelp company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme smeargle reveal-in-osx-finder pyvenv pytest pyenv-mode py-yapf pip-requirements pbcopy osx-trash orgit mmm-mode markdown-toc markdown-mode magit-gitflow launchctl hy-mode helm-pydoc helm-gitignore request helm-flyspell gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor cython-mode auto-dictionary anaconda-mode pythonic f ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe use-package spacemacs-theme spaceline smooth-scrolling restart-emacs rainbow-delimiters quelpa popwin persp-mode pcre2el paradox page-break-lines open-junk-file neotree move-text macrostep lorem-ipsum linum-relative leuven-theme info+ indent-guide ido-vertical-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-args evil-anzu eval-sexp-fu elisp-slime-nav define-word clean-aindent-mode buffer-move bracketed-paste auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line)))
  '(paradox-github-token t)
- (vc-annotate-background "#3b3b3b")
  '(vc-annotate-color-map
    (quote
     ((20 . "#dd5542")
@@ -368,4 +418,4 @@ static char *gnus-pointer[] = {
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil)))))
+ )
