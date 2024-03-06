@@ -1,28 +1,11 @@
 [alias]
-    tree = log --graph --full-history --abbrev-commit --decorate --date=relative --format=format:'%C(bold magenta)%h%C(reset)%C(auto)%d%C(reset) %s%C(reset) %C(dim green)(%ad)%C(reset)'
-[user]
-	name = davidmun
-	email = davidmun@microsoft.com
+    tree = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold magenta)%h%C(reset)%C(auto)%d%C(reset) %s%C(reset) %C(dim green)(%ad)%C(reset)'
+
 [core]
-	filemode = false
-	ignorecase = true
-	editor = C:/Users/davidmun/scripts/gvim.bat
-[diff]
-	tool = sdvdiff
-[difftool]
-	prompt = false
-[difftool "sdvdiff"]
-	cmd = \"C:\\Users\\davidmun\\Programs\\sdpack\\bin\\sdvdiff.exe\" \"$LOCAL\" \"$REMOTE\"
-	keepbackup = false
-[difftool "vsdiffmerge"]
-	cmd = \"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\vsdiffmerge.exe\" \"$LOCAL\" \"$REMOTE\" //t
-	keepbackup = false
+	pager = less -FRSX
+	untrackedCache = true
 
 [merge]
-	tool = vsdiffmerge
-[mergetool]
-	prompt = false
-[mergetool "vsdiffmerge"]
-	cmd = \"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\vsdiffmerge.exe\" \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\" //m
-	keepbackup = false
-	trustexitcode = true
+	conflictstyle = diff3
+[user]
+	name = David Munro
