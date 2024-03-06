@@ -7,5 +7,7 @@
 
 [merge]
 	conflictstyle = diff3
+
 [user]
 	name = David Munro
+	email = david.munro@gmail.com
