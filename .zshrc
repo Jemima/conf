@@ -73,6 +73,12 @@ HIST_STAMPS="yyy-mm-dd"
 ## Only save the most recent when running a command multiple times
 setopt HIST_IGNORE_ALL_DUPS
 
+# Don't use lazy keybindings, slightly slower startup speed but lazy keybindings
+# stomp over our keybindings we set later in this file. And from some quick
+# checking, slower means ~1ms so meh.
+export ZVM_LAZY_KEYBINDINGS=false
+export ZVM_INIT_MODE=sourcing
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -123,10 +129,6 @@ pastefinish() {
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
-
-
-# Vim mode!
-bindkey -v
 
 # Load fzf key bindings and completions (**<TAB> for fzf completion).
 # This needs to come at the end since something earlier is trying to set its own
