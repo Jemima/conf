@@ -99,11 +99,6 @@ alias fd=fdfind
 # Use fd by default, it's faster
 export FZF_DEFAULT_COMMAND='fdfind -H --type f'
 
-# Load fzf key bindings...
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-# ...and completions e.g. **<TAB> calls fzf to find files
-source /usr/share/doc/fzf/examples/completion.zsh
-
 export EDITOR=vim
 export VISUAL=vim
 
@@ -132,3 +127,9 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # Vim mode!
 bindkey -v
+
+# Load fzf key bindings and completions (**<TAB> for fzf completion).
+# This needs to come at the end since something earlier is trying to set its own
+# conflicting (and silly) keybindings, notably ^R=redisplay.
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
