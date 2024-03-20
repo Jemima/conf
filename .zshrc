@@ -112,6 +112,8 @@ export VISUAL=vim
 typeset -U path
 path=(
     $path
+    $HOME/.local/bin
+    $HOME/.cargo/bin
 )
 
 # Run `p10k configure` or edit `~/.p10k.zsh` to configure p10k prompt
